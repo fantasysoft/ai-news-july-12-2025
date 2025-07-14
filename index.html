@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI热门内容汇总</title>
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #f5f7ff;
+            --text-color: #333;
+            --light-text: #666;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9fafc;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4a6bff 0%, #2a4bdf 100%);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin: 2rem 0 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .card:hover .card-img {
+            filter: brightness(1.05);
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            color: var(--text-color);
+            flex-grow: 1;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            margin-top: auto;
+        }
+        
+        .btn:hover {
+            background-color: #3a5bef;
+            transform: translateY(-2px);
+        }
+        
+        .search-container {
+            margin: 2rem auto;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 1rem;
+            transition: var(--transition);
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+        
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            opacity: 0;
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+        }
+        
+        .back-to-top:hover {
+            background-color: #3a5bef;
+            transform: translateY(-3px);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: var(--light-text);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(74, 107, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>AI热门内容汇总</h1>
+            <p>最新人工智能新闻和研究文章</p>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="搜索文章..." id="searchInput">
+        </div>
+        
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="news">新闻</button>
+            <button class="filter-btn" data-filter="research">研究</button>
+        </div>
+        
+        <h2 class="section-title">AI新闻</h2>
+        <div class="card-container" id="newsContainer"></div>
+        
+        <h2 class="section-title">AI研究文章</h2>
+        <div class="card-container" id="researchContainer"></div>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>加载中...</p>
+        </div>
+        
+        <div class="no-results" id="noResults" style="display: none;">
+            <p>没有找到匹配的结果</p>
+        </div>
+    </main>
+    
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+    
+    <script>
+        // Data
+        const aiNews = [
+            {
+                title: "Meta's Days of Giving Away AI for Free Are Numbered",
+                link: "https://www.bloomberg.com/opinion/articles/2025-07-14/mark-zuckerberg-and-meta-are-unlikely-to-keep-giving-away-ai-for-free",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "news"
+            },
+            {
+                title: "Scientists reportedly hiding AI text prompts in academic papers to receive positive peer reviews",
+                link: "https://www.theguardian.com/technology/2025/jul/14/scientists-reportedly-hiding-ai-text-prompts-in-academic-papers-to-receive-positive-peer-reviews",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "news"
+            },
+            {
+                title: "Startup Building AI Chatbot for Military Applications",
+                link: "https://www.nationaldefensemagazine.org/articles/2025/7/14/startup-building-ai-chatbot-for-military-applications",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "news"
+            },
+            {
+                title: "Legal gaps in AI are a business risk, not just a compliance issue",
+                link: "https://www.helpnetsecurity.com/2025/07/14/ai-governance-risks-legal-security-teams/",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "news"
+            },
+            {
+                title: "Malaysia says trade permit required for AI chips of U.S. origin",
+                link: "https://www.reuters.com/world/asia-pacific/malaysia-says-trade-permit-required-ai-chips-us-origin-2025-07-14/",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "news"
+            }
+        ];
+        
+        const aiResearch = [
+            {
+                title: "On monitorability of AI",
+                link: "https://link.springer.com/article/10.1007/s43681-024-00420-x",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "research"
+            },
+            {
+                title: "Is artificial intelligence (AI) research biased and conceptually vague? A systematic review of research on bias and discrimination in the context of using AI in human …",
+                link: "https://www.sciencedirect.com/science/article/pii/S0160791X25000089",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "research"
+            },
+            {
+                title: "Artificial intelligence: an overview of research trends and future directions",
+                link: "https://www.emerald.com/insight/content/doi/10.1108/ijchm-03-2024-0322/full/html",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "research"
+            },
+            {
+                title: "Intelligent Cinematography: a review of AI research for cinematographic production",
+                link: "https://link.springer.com/article/10.1007/s10462-024-11089-3",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "research"
+            },
+            {
+                title: "Mlgym: A new framework and benchmark for advancing ai research agents",
+                link: "https://arxiv.org/abs/2502.14499",
+                image: "https://online.uc.edu/wp-content/uploads/2024/08/AI-Benefits-Blog-Featured.jpg",
+                type: "research"
+            }
+        ];
+        
+        // Combine all articles
+        const allArticles = [...aiNews, ...aiResearch];
+        
+        // DOM Elements
+        const newsContainer = document.getElementById('newsContainer');
+        const researchContainer = document.getElementById('researchContainer');
+        const searchInput = document.getElementById('searchInput');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const noResults = document.getElementById('noResults');
+        const backToTop = document.getElementById('backToTop');
+        const loading = document.getElementById('loading');
+        
+        // Create card function
+        function createCard(article) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.type = article.type;
+            
+            card.innerHTML = `
+                <img src="${article.image}" alt="${article.title}" class="card-img">
+                <div class="card-content">
+                    <h3 class="card-title">${article.title}</h3>
+                    <a href="${article.link}" class="btn" target="_blank">阅读更多</a>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Render articles
+        function renderArticles() {
+            // Simulate loading
+            loading.style.display = 'block';
+            newsContainer.innerHTML = '';
+            researchContainer.innerHTML = '';
+            
+            setTimeout(() => {
+                // Render news
+                aiNews.forEach(news => {
+                    const card = createCard(news);
+                    newsContainer.appendChild(card);
+                });
+                
+                // Render research
+                aiResearch.forEach(research => {
+                    const card = createCard(research);
+                    researchContainer.appendChild(card);
+                });
+                
+                loading.style.display = 'none';
+            }, 500);
+        }
+        
+        // Filter articles
+        function filterArticles(filter) {
+            const allCards = document.querySelectorAll('.card');
+            let visibleCount = 0;
+            
+            allCards.forEach(card => {
+                if (filter === 'all' || card.dataset.type === filter) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Show/hide section titles based on filter
+            const newsSectionTitle = document.querySelector('h2.section-title:nth-of-type(1)');
+            const researchSectionTitle = document.querySelector('h2.section-title:nth-of-type(2)');
+            
+            if (filter === 'news') {
+                newsSectionTitle.style.display = 'block';
+                researchSectionTitle.style.display = 'none';
+            } else if (filter === 'research') {
+                newsSectionTitle.style.display = 'none';
+                researchSectionTitle.style.display = 'block';
+            } else {
+                newsSectionTitle.style.display = 'block';
+                researchSectionTitle.style.display = 'block';
+            }
+            
+            // Show no results message if needed
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+        
+        // Search articles
+        function searchArticles(query) {
+            const allCards = document.querySelectorAll('.card');
+            let visibleCount = 0;
+            
+            if (!query) {
+                allCards.forEach(card => {
+                    card.style.display = 'block';
+                });
+                noResults.style.display = 'none';
+                return;
+            }
+            
+            query = query.toLowerCase();
+            
+            allCards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                if (title.includes(query)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+        
+        // Event Listeners
+        searchInput.addEventListener('input', () => {
+            searchArticles(searchInput.value.trim());
+        });
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                filterArticles(button.dataset.filter);
+            });
+        });
+        
+        // Back to top button
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        backToTop.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderArticles();
+        });
+    </script>
+</body>
+</html>
